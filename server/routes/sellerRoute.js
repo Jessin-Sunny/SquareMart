@@ -1,8 +1,8 @@
 const express = require('express')
 const { signup } = require('../controllers/customerController')
-const customerRouter = express.Router()
+const sellerRouter = express.Router()
 
 //directing to signup
-customerRouter.post('/signup', signup)
+sellerRouter.post('/signup', signup)
 
-module.exports = customerRouter
+module.exports = sellerRouter
