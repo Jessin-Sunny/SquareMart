@@ -1,6 +1,6 @@
 const mongoose =  require('mongoose');
 
-const customerSchema =  new mongoose.Schema({
+const adminSchema =  new mongoose.Schema({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -12,12 +12,7 @@ const customerSchema =  new mongoose.Schema({
         required: false, 
         enum: ['Male', 'Female', 'Other']
     },
-    addressID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address',
-        required: true
-    }
-}, {timestamps: true});
+});
 
-const Customer = mongoose.model('Customer', customerSchema);
-module.exports = Customer;
+const Admin = mongoose.model('Admin', adminSchema);
+module.exports = Admin;
