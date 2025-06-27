@@ -1,5 +1,5 @@
 const express = require('express')
-const { signup } = require('../controllers/customerController')
+const { signup } = require('../controllers/sellerController')
 const sellerRouter = express.Router()
 
 //directing to signup

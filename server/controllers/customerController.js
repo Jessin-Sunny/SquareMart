@@ -11,7 +11,7 @@ const signup = async(req, res, next) => {
         console.log(name, email, password)
 
         //validating input
-        if(!name || !email || !password) {
+        if(!name || !email || !password || !phoneno) {
             return res.status(400).json({ error: "All fields are mandatory" })
         }
 
