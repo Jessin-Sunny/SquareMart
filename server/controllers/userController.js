@@ -2,7 +2,6 @@ const User = require("../models/user")
 const bcrypt = require("bcrypt")
 const createToken = require("../utils/generateToken")
 
-
 //login
 const login = async(req, res, next) => {
     try {

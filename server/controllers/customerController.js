@@ -2,13 +2,12 @@ const User = require('../models/user');
 const Customer = require('../models/customer');
 const Address = require('../models/address')
 const bcrypt = require('bcrypt');
-const createToken = require('../utils/generateToken');
 
 //sign-up
 const signup = async(req, res, next) => {
     try {
         const { name, email, phoneno,  profilePic, password, gender, buildingNo, street, city, state, pincode, country } = req.body || {}
-        console.log(name, email, password)
+        console.log(name, email)
 
         //validating input
         if(!name || !email || !password || !phoneno) {
