@@ -61,4 +61,35 @@ const checkSeller = async(req, res, next) => {
     }
 }
 
-module.exports = {signup, checkSeller} 
+//viewing Profile
+const viewProfile = async(req, res, next) => {
+    try {
+        //fetching data with user id from request
+        const userID = req.user.id;
+        console.log(userID)
+        const userData = await User.findById(userID).select('-password');
+        if(!userData) {
+            return res.status(400).json({ message: "User Not Found" });
+        }
+        //fetching seller info
+        const sellerData = await Seller.findOne({ userID: userID }).populate('addressIDs');
+        if(!sellerData) {
+            return res.status(400).json({ message : "User Not Found" });
+        }
+
+        //return both seller and user info
+
+        return res.status(200).json({
+             message: "Seller Profile fetched Successfully",
+            profile: {
+                userData,
+                sellerData
+            }
+            });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = {signup, checkSeller, viewProfile} 

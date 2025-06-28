@@ -52,5 +52,26 @@ const checkAdmin = async(req, res, next) => {
     }
 }
 
+//viewing Profile
+const viewProfile = async(req, res, next) => {
+    try {
+        //fetching data with user id from request
+        const userID = req.user.id;
+        console.log(userID)
+        const userData = await User.findById(userID).select('-password');
+        if(!userData) {
+            return res.status(400).json({ message: "User Not Found" });
+        }
+        return res.status(200).json({
+             message: "Admin Profile fetched Successfully",
+            profile: {
+                userData
+            }
+            });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
 
-module.exports = {signup, checkAdmin} 
+module.exports = {signup, checkAdmin, viewProfile} 

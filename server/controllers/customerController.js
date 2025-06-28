@@ -54,4 +54,35 @@ const checkCustomer = async(req, res, next) => {
     }
 }
 
-module.exports = {signup, checkCustomer} 
+//viewing Profile
+const viewProfile = async(req, res, next) => {
+    try {
+        //fetching data with user id from request
+        const userID = req.user.id;
+        console.log(userID)
+        const userData = await User.findById(userID).select('-password');
+        if(!userData) {
+            return res.status(400).json({ message: "User Not Found" });
+        }
+        //fetching customer info
+        const customerData = await Customer.findOne({ userID: userID }).populate('addressID');
+        if(!customerData) {
+            return res.status(400).json({ message : "User Not Found" });
+        }
+
+        //return both customer and user info
+
+        return res.status(200).json({
+             message: "Customer Profile fetched Successfully",
+            profile: {
+                userData,
+                customerData
+            }
+            });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = {signup, checkCustomer, viewProfile} 
