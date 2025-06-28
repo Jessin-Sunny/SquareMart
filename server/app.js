@@ -2,6 +2,9 @@ const express = require('express')
 const app =  express();
 const router = require('./routes/index');
 const connectDB = require('./config/db')
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
 
 connectDB()
 .then(()=>console.log("DB connected..."))

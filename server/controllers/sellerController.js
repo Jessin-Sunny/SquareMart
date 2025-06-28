@@ -52,4 +52,13 @@ const signup = async(req, res, next) => {
     }
 }
 
-module.exports = {signup} 
+//check seller - authentication for Seller
+const checkSeller = async(req, res, next) => {
+    try {
+        res.json({message: "Authorized Seller", loggedinUser: req.user.id})
+    } catch (error) {
+        res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
+    }
+}
+
+module.exports = {signup, checkSeller} 

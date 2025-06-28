@@ -43,4 +43,14 @@ const signup = async(req, res, next) => {
     }
 }
 
-module.exports = {signup} 
+//check admin - authentication for Admin
+const checkAdmin = async(req, res, next) => {
+    try {
+        res.json({message: "Authorized Admin", loggedinUser: req.user.id})
+    } catch (error) {
+        res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
+    }
+}
+
+
+module.exports = {signup, checkAdmin} 

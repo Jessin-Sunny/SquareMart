@@ -45,5 +45,13 @@ const signup = async(req, res, next) => {
         res.status(error.status || 500).json( {error: error.message || "Internal Server Error"})
     }
 }
+//check customer - authentication for Customer
+const checkCustomer = async(req, res, next) => {
+    try {
+        res.json({message: "Authorized Customer", loggedinUser: req.user.id})
+    } catch (error) {
+        res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
+    }
+}
 
-module.exports = {signup} 
+module.exports = {signup, checkCustomer} 

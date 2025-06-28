@@ -57,4 +57,23 @@ const login = async(req, res, next) => {
     }
 }
 
-module.exports = { login }
+//logout
+const logout = async(req, res, next) =>{
+    try {
+        res.clearCookie("token")
+        res.json({ message: "User logout successfull"})
+    } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || "Internal Server Error"})
+    }
+}
+
+//check user - authenticated User
+const checkUser = async(req, res, next) => {
+    try {
+        res.json({message: "User Authorized", loggedinUser: req.user.id})
+    } catch (error) {
+        res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
+    }
+}
+
+module.exports = { login, logout, checkUser }
