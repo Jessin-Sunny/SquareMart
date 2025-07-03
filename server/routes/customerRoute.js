@@ -7,5 +7,4 @@ const customerRouter = express.Router()
 customerRouter.post('/signup', signup)
 //directing to viewprofile
 customerRouter.get('/viewProfile', authCustomer, viewProfile)
-
 module.exports = customerRouter

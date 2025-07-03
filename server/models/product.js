@@ -19,14 +19,15 @@ const productSchema = new mongoose.Schema({
         type: [String],
         required: false
     },
-    image: { type: String, required: true },
+    image: { type: [String], required: true },
     sellerID: {
         type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller',
             required: true,
     },
     releaseDate: {
-        type: Date, default: Date.now
+        type: Date,
+        default: null
     },
     updatedDate: {
         type: Date, default: Date.now

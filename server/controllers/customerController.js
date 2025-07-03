@@ -60,6 +60,7 @@ const viewProfile = async(req, res, next) => {
         //fetching data with user id from request
         const userID = req.user.id;
         console.log(userID)
+        //field projection
         const userData = await User.findById(userID).select('-password');
         if(!userData) {
             return res.status(400).json({ message: "User Not Found" });

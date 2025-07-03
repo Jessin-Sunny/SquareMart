@@ -1,8 +1,10 @@
 const User = require('../models/user');
 const Seller = require('../models/seller');
-const Address = require('../models/address')
+const Address = require('../models/address');
 const bcrypt = require('bcrypt');
 const createToken = require('../utils/generateToken');
+const Product = require('../models/product');
+const Review = require('../models/review');
 
 //sign-up
 const signup = async(req, res, next) => {
@@ -55,7 +57,15 @@ const signup = async(req, res, next) => {
 //check seller - authentication for Seller
 const checkSeller = async(req, res, next) => {
     try {
-        res.json({message: "Authorized Seller", loggedinUser: req.user.id})
+        const userID = req.user.id;
+
+        //finding seller
+        const seller = await Seller.findOne({userID});
+        if(!seller) {
+            return res.status(403).json({ message: "Access denied. Seller account required." });
+        }
+        req.sellerID = seller._id;
+        next();
     } catch (error) {
         res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
     }
@@ -92,4 +102,141 @@ const viewProfile = async(req, res, next) => {
     }
 }
 
-module.exports = {signup, checkSeller, viewProfile} 
+//listing products
+const listProduct = async (req, res, next) => {
+    try {
+        //inputting values from request
+        const {title ,specification, description, price, discount, quantity, category, keywords, image, releaseDate} = req.body || {}
+        if(!title || !specification || !price  || !category) {
+            return res.status(400).json({ error: "All fields are mandatory" })
+        }
+        //checking status
+        let status;
+        if (quantity > 0) {
+            status = 'In-Stock';
+        } else {
+            status = 'Out-of-Stock';
+        }
+        //writing to Product Schema
+        const newProduct = new Product({title ,specification, description, price, discount, quantity, category, keywords, image, status, releaseDate:  releaseDate || null, sellerID: req.sellerID});
+        const savedProduct = await newProduct.save();
+        const productData = savedProduct.toObject();
+        return res.status(201).json({message: "Product Added Successfully",productData})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+//deleting Product - with product ID through front end
+const deleteProduct = async (req, res) => {
+    try {
+        const productID = req.params.id;
+
+        const deletedProduct = await Product.findByIdAndDelete(productID);
+
+        if (!deletedProduct) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        return res.status(200).json({ message: "Product deleted successfully", deletedProduct });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+//updating Product through front end
+const updateProduct = async (req, res) => {
+    try {
+        const productID = req.params.id;
+        const updates = req.body; // can include any fields: quantity, title, etc.
+
+        if (!updates || Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: "No update fields provided" });
+        }
+
+        // Auto-update status based on quantity (if quantity is part of update)
+        if ('quantity' in updates) {
+            const qty = updates.quantity;
+            updates.status = (qty === 0) ? 'Out-of-Stock' : 'In-Stock';
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productID,
+            { $set: updates },
+            { new: true }   //return updatedProduct
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        return res.status(200).json({
+            message: "Product updated successfully",
+            updatedProduct
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+//view product details
+const viewProducts = async(req, res) => {
+    try {
+        //getting sellerID
+        const sellerID = req.sellerID;
+
+        //finding details of all products of seller
+        const productData = await Product.find({sellerID: sellerID});
+        if(productData.length == 0) {
+            return res.status(404).json({ message : "No Products Found" });
+        }
+
+        // Attach ratings
+        const productsWithRatings = await Promise.all(
+            productData.map(async (product) => {
+                const rating = await averageRating(product._id);
+                return {
+                    ...product.toObject(),
+                    averageRating: rating.averageRating,
+                    totalReviews: rating.totalReviews
+                };
+            })
+        );
+
+        return res.status(200).json({
+            message: "Products fetched successfully",
+            products: productsWithRatings
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+//average rating calculator by productID
+const averageRating = async (productID) => {
+    //find all ratings of the given productID
+    const reviewData = await Review.find({ productID: productID });
+    if (reviewData.length === 0) {
+        return {
+            message: "No reviews yet",
+            averageRating: 0,
+            totalReviews: 0
+        };
+    }
+    // Calculate average rating
+    const totalRating = reviewData.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = totalRating / reviewData.length;
+    return {
+        message: "Reviews fetched successfully",
+        averageRating: averageRating.toFixed(1), // round to 1 decimal place
+        totalReviews: reviewData.length,
+        reviews: reviewData
+    };
+}
+
+module.exports = {signup, checkSeller, viewProfile, listProduct, deleteProduct, updateProduct, averageRating, viewProducts} 
