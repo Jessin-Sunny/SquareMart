@@ -48,7 +48,15 @@ const signup = async(req, res, next) => {
 //check customer - authentication for Customer
 const checkCustomer = async(req, res, next) => {
     try {
-        res.json({message: "Authorized Customer", loggedinUser: req.user.id})
+        const userID = req.user.id;
+
+        //finding customer
+        const customer = await Customer.findOne({userID});
+        if(!customer) {
+            return res.status(403).json({ message: "Access denied. customer account required." });
+        }
+        req.customerID = customer._id;
+        next();
     } catch (error) {
         res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
     }
