@@ -1,7 +1,10 @@
 const User = require('../models/user');
 const Customer = require('../models/customer');
-const Address = require('../models/address')
+const Address = require('../models/address');
+const Product = require('../models/product');
 const bcrypt = require('bcrypt');
+const Review = require('../models/review');
+const { averageProductRating } = require('./userController');
 
 //sign-up
 const signup = async(req, res, next) => {
@@ -94,4 +97,44 @@ const viewProfile = async(req, res, next) => {
     }
 }
 
-module.exports = {signup, checkCustomer, viewProfile} 
+//product page display
+const productPage = async(req, res) => {
+    //productID as input
+    //product details + reviews + order
+    //reviews - details + no. of reviews + avg rating + images
+    //order - estimated delivery + no. of broughts [delivered]
+    try {
+        const productID = req.params.id
+        const productData = await Product.findById(productID);
+        if(!productData) {
+            return res.status(404).json({ message: "Product not found"})
+        }
+
+        //fetch all reviews
+        const reviews = await Review.find({ productID })
+        .populate({
+            path: 'customerID',
+            populate: {
+            path: 'userID',
+            select: 'name profilePic'
+            }
+        });
+        const totalReviews = reviews.length
+        const avgRating = await averageProductRating(productID)
+
+        //combine product, review and order
+        const result = {
+            "product": productData,
+            "reviews": {reviews, totalReviews, avgRating},
+            "order": {}     //future
+        }
+
+        return res.status(200).json({ message: "Product, Review, Order fetched successfully", result})
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = {signup, checkCustomer, viewProfile, productPage} 

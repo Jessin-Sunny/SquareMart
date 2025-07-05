@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const createToken = require('../utils/generateToken');
 const Product = require('../models/product');
 const Review = require('../models/review');
+const { averageProductRating } = require('./userController');
 
 //sign-up
 const signup = async(req, res, next) => {
@@ -197,7 +198,7 @@ const viewProducts = async(req, res) => {
         // Attach ratings
         const productsWithRatings = await Promise.all(
             productData.map(async (product) => {
-                const rating = await averageRating(product._id);
+                const rating = await averageProductRating(product._id);
                 return {
                     ...product.toObject(),
                     averageRating: rating.averageRating,
@@ -217,26 +218,5 @@ const viewProducts = async(req, res) => {
     }
 }
 
-//average rating calculator by productID
-const averageRating = async (productID) => {
-    //find all ratings of the given productID
-    const reviewData = await Review.find({ productID: productID });
-    if (reviewData.length === 0) {
-        return {
-            message: "No reviews yet",
-            averageRating: 0,
-            totalReviews: 0
-        };
-    }
-    // Calculate average rating
-    const totalRating = reviewData.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = totalRating / reviewData.length;
-    return {
-        message: "Reviews fetched successfully",
-        averageRating: averageRating.toFixed(1), // round to 1 decimal place
-        totalReviews: reviewData.length,
-        reviews: reviewData
-    };
-}
 
-module.exports = {signup, checkSeller, viewProfile, listProduct, deleteProduct, updateProduct, averageRating, viewProducts} 
+module.exports = {signup, checkSeller, viewProfile, listProduct, deleteProduct, updateProduct, viewProducts} 

@@ -11,6 +11,7 @@ const reviewSchema = mongoose.Schema({
             ref: 'Customer',
             required: true,
     },
+    image : { type : [String], required: false},
     rating: { type: Number, required: true, min: 1.0, max: 5.0 },
     title: { type: String, required: true },
     comment: { type: String, required: false },

@@ -1,6 +1,7 @@
 const User = require("../models/user")
 const bcrypt = require("bcrypt")
 const createToken = require("../utils/generateToken")
+const Review = require("../models/review")
 
 //login
 const login = async(req, res, next) => {
@@ -76,4 +77,26 @@ const checkUser = async(req, res, next) => {
     }
 }
 
-module.exports = { login, logout, checkUser }
+//average rating calculator by productID
+const averageProductRating = async (productID) => {
+    //find all ratings of the given productID
+    const reviewData = await Review.find({ productID: productID });
+    if (reviewData.length === 0) {
+        return {
+            message: "No reviews yet",
+            averageRating: 0,
+            totalReviews: 0
+        };
+    }
+    // Calculate average rating
+    const totalRating = reviewData.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = totalRating / reviewData.length;
+    return {
+        message: "Reviews fetched successfully",
+        averageRating: averageRating.toFixed(1), // round to 1 decimal place
+        totalReviews: reviewData.length,
+        reviews: reviewData
+    };
+}
+
+module.exports = { login, logout, checkUser, averageProductRating }
