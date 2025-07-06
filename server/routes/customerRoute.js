@@ -3,7 +3,7 @@ const { signup, viewProfile, checkCustomer, productPage } = require('../controll
 const authCustomer = require('../middlewares/authCustomer')
 const { addToCart, viewCart, removeCartProduct, incQuantity, decQuantity } = require('../controllers/cartController')
 const { placeOrder } = require('../controllers/orderController')
-const { addReview, editReview } = require('../controllers/reviewController')
+const { addReview, editReview, removeReview } = require('../controllers/reviewController')
 const customerRouter = express.Router()
 
 //directing to signup
@@ -26,6 +26,8 @@ customerRouter.get('/productInfo/:id',productPage)
 customerRouter.post('/placeOrder', authCustomer, checkCustomer, placeOrder)
 //adding a review for ordered product
 customerRouter.post('/addReview/:id', authCustomer, checkCustomer, addReview)
-//adding a review for ordered product
+//editing a review for ordered product
 customerRouter.patch('/editReview/:id', authCustomer, checkCustomer, editReview)
+//removing a review for ordered product
+customerRouter.delete('/removeReview/:id', authCustomer, checkCustomer, removeReview)
 module.exports = customerRouter

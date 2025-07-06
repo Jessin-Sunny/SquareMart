@@ -50,7 +50,24 @@ const addReview = async(req, res) => {
 
 //remove a review for a particular product[delivered in order] by a particular customer
 const removeReview = async(req, res) => {
+    try {
+        const customerID = req.customerID
+        const productID = req.params.id
 
+        const reviewData = await Review.findOne({productID, customerID})
+        if(!reviewData) {
+            return res.status(400).json({ message: "Review doesn't exists"})
+        }
+
+        const removedReview = await Review.findByIdAndDelete(reviewData._id)
+        if (!removedReview) {
+            return res.status(500).json({ message: "Failed to remove review" });
+        }
+        return res.status(200).json({ message: "Review removed successfully", removedReview });
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal server error"})
+    }
 }
 
 //edit a review for a particular product[delivered in order] by a particular customer
@@ -59,7 +76,7 @@ const editReview = async(req, res) => {
         const customerID = req.customerID
         const productID = req.params.id
         const { title, image, comment, rating} = req.body
-         // Check if nothing to update
+        // Check if nothing to update
         if (title === undefined && image === undefined && comment === undefined && rating === undefined) {
             return res.status(400).json({ message: "No fields provided to update" });
         }
@@ -90,4 +107,4 @@ const editReview = async(req, res) => {
     }
 }
 
-module.exports = { addReview, editReview }
+module.exports = { addReview, editReview, removeReview }
