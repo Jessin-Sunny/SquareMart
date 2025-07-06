@@ -5,10 +5,13 @@ const bcrypt = require('bcrypt');
 const createToken = require('../utils/generateToken');
 const Product = require('../models/product');
 const Review = require('../models/review');
-const { averageProductRating } = require('./userController');
+const { averageProductRating } = require('./orderController');
 
 //sign-up
 const signup = async(req, res, next) => {
+    let savedUser = null;
+    let savedAddress = null;
+
     try {
         const { name, email, phoneno,  profilePic, password, buildingNo, street, city, state, pincode, country, GSTIN } = req.body || {}
         console.log(name, email)
@@ -35,13 +38,13 @@ const signup = async(req, res, next) => {
 
         //new User
         const newUser = new User ({name, email, phoneno, profilePic, password: hashedPassword, role: 'Seller'})
-        const savedUser = await newUser.save()
+        savedUser = await newUser.save()
         //const userData = savedUser.toObject();  //Convert Mongoose document to plain JS object
         //delete userData.password    //not returning password [security]
 
         //new Address
         const newAddress = new Address ({buildingNo, street, city, state, pincode, country})
-        const savedAddress = await newAddress.save();
+        savedAddress = await newAddress.save();
 
         //new Customer
         const newSeller = new Seller ({userID: savedUser._id, addressIDs: [savedAddress._id], GSTIN})
@@ -50,6 +53,14 @@ const signup = async(req, res, next) => {
         return res.status(201).json({ message: "Account Created Successfully",sellerData })
 
     } catch (error) {
+        //roll-back
+        if(savedUser) {
+            await User.findByIdAndDelete(savedUser._id)
+        }
+        if(savedAddress) {
+            await Address.findByIdAndDelete(savedAddress._id)
+        }
+        
         console.log(error);
         res.status(error.status || 500).json( {error: error.message || "Internal Server Error"})
     }

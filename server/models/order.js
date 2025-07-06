@@ -11,13 +11,18 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             required: true,
         },
-        price: {
+        price: {                    //actual price
             type: Number,
             required: true,
         },
         discount: {
             type: Number,
             required: true,
+        },
+        shippingAddressID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Address',
+        required: true
         }
     }],
     customerID: {
@@ -39,11 +44,11 @@ const orderSchema = new mongoose.Schema({
         ref: 'Address',
         required: true
     },
-    shippingAddressID: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address',
-        required: true
-    }
+    paymentID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Payment',
+    required: true
+    },
 }, { timestamps: true });
 
 const Order = mongoose.model('Order', orderSchema);

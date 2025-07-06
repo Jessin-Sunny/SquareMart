@@ -2,6 +2,7 @@ const express = require('express')
 const { signup, viewProfile, checkCustomer, productPage } = require('../controllers/customerController')
 const authCustomer = require('../middlewares/authCustomer')
 const { addToCart, viewCart, removeCartProduct, incQuantity, decQuantity } = require('../controllers/cartController')
+const { placeOrder } = require('../controllers/orderController')
 const customerRouter = express.Router()
 
 //directing to signup
@@ -20,4 +21,6 @@ customerRouter.patch('/incrementCartProduct/:id', authCustomer, checkCustomer, i
 customerRouter.patch('/decrementCartProduct/:id', authCustomer, checkCustomer, decQuantity)
 //product page
 customerRouter.get('/productInfo/:id',productPage)
+//placing an order
+customerRouter.post('/placeOrder', authCustomer, checkCustomer, placeOrder)
 module.exports = customerRouter
