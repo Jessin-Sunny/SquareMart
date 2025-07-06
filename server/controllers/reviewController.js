@@ -55,7 +55,39 @@ const removeReview = async(req, res) => {
 
 //edit a review for a particular product[delivered in order] by a particular customer
 const editReview = async(req, res) => {
+    try {
+        const customerID = req.customerID
+        const productID = req.params.id
+        const { title, image, comment, rating} = req.body
+         // Check if nothing to update
+        if (title === undefined && image === undefined && comment === undefined && rating === undefined) {
+            return res.status(400).json({ message: "No fields provided to update" });
+        }
+        
+        const reviewData = await Review.findOne({productID, customerID})
+        if(!reviewData) {
+            return res.status(400).json({ message: "Review doesn't exists, try to add a review"})
+        }
 
+        // Build updates dynamically
+        const updates = {};
+        if (title !== undefined) updates.title = title;
+        if (image !== undefined) updates.image = image;
+        if (comment !== undefined) updates.comment = comment;
+        if (rating !== undefined) updates.rating = rating;
+
+        const updatedReview = await Review.findByIdAndUpdate(
+            reviewData._id,
+            { $set: updates },
+            { new: true }
+        );
+
+        return res.status(200).json({ message: "Review updated successfully", updatedReview });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
 }
 
-module.exports = { addReview }
+module.exports = { addReview, editReview }
