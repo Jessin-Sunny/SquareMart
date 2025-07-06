@@ -150,13 +150,14 @@ const orderDetails = async(products, state) =>{
 }
 
 //place an order
-const placeOrder = async(req, res, next) => {
+const placeOrder = async(req, res) => {
     let deductedProducts = [];  // To rollback stock if needed
     let savedOrder = null
     try {
         //decoding all details from request
         // products: {productIDs, quantity}
-        const {products, state, customerID, deliveryAddressID, paymentID} = req.body
+        const {products, state, deliveryAddressID, paymentID} = req.body
+        const customerID = req.customerID
         if (!products || !state || !customerID || !deliveryAddressID) {
             return res.status(400).json({ message: "Missing required fields" });
         }
