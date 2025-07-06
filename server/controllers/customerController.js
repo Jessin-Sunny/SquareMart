@@ -132,13 +132,13 @@ const productPage = async(req, res) => {
         const totalReviews = reviews.length
         const avgRating = await averageProductRating(productID)
         const broughtCount = await countBroughts(productID)
-        const estimatedDelivery = await estimatedDelivery('')
+        const eDelivery =  estimatedDelivery('Kerala')
 
         //combine product, review and order
         const result = {
             "product": productData,
             "reviews": {reviews, totalReviews, avgRating},
-            "order": {estimatedDelivery, broughtCount}     //future
+            "order": {eDelivery, broughtCount}     //future
         }
 
         return res.status(200).json({ message: "Product, Review, Order fetched successfully", result})

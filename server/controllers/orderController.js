@@ -59,6 +59,7 @@ const countBroughts = async (productID) => {
 
         // Sum up the quantity of this product from each order
         let totalCount = 0;
+        //console.log(orders)
         for (const order of orders) {
             for (const item of order.products) {
                 if (item.productID.toString() === productID.toString()) {
@@ -150,6 +151,8 @@ const orderDetails = async(products, state) =>{
 
 //place an order
 const placeOrder = async(req, res, next) => {
+    let deductedProducts = [];  // To rollback stock if needed
+    let savedOrder = null
     try {
         //decoding all details from request
         // products: {productIDs, quantity}
@@ -181,6 +184,9 @@ const placeOrder = async(req, res, next) => {
             product.quantity -= quantity;
             await product.save();
 
+            // Track for rollback
+            deductedProducts.push({ productID, quantity });
+
             const { price, discount } = product;
             // Find matching shipping address for this product
             const matched = shippingAddresses.find(
@@ -208,7 +214,7 @@ const placeOrder = async(req, res, next) => {
             paymentID: paymentID
         })
 
-        const savedOrder = await newOrder.save();
+        savedOrder = await newOrder.save();
 
         return res.status(201).json({
             message: "Order placed successfully",
@@ -223,6 +229,28 @@ const placeOrder = async(req, res, next) => {
         });
         
     } catch (error) {
+        // Manual rollback logic
+        for (const { productID, quantity } of deductedProducts) {
+            try {
+                const product = await Product.findById(productID);
+                if (product) {
+                    product.quantity += quantity;
+                    await product.save();
+                }
+            } catch (rollbackError) {
+                console.error(`Rollback failed for product ${productID}:`, rollbackError);
+            }
+        }
+
+        // Delete order if created
+        if (savedOrder) {
+            try {
+                await Order.findByIdAndDelete(savedOrder._id);
+            } catch (rollbackError) {
+                console.error("Failed to delete partially saved order:", rollbackError);
+            }
+        }
+
         console.error("Error placing order:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
