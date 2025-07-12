@@ -11,7 +11,8 @@ const productSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
-    price: { type: Number, required: true },            //actual price without discount
+    price: { type: Number, required: true },            //actual price without discount [selling price]
+    costPrice: { type: Number },
     discount: { type: Number, required: true },
     quantity: { type: Number, required: true },
     category: { type: String, required: true },

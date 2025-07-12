@@ -188,7 +188,8 @@ const placeOrder = async(req, res) => {
             // Track for rollback
             deductedProducts.push({ productID, quantity });
 
-            const { price, discount } = product;
+            const { price, discount, costPrice } = product;
+            const { profit, gst, platformFee } = calculateProfit(price, costPrice, discount)
             // Find matching shipping address for this product
             const matched = shippingAddresses.find(
             p => p.productID.toString() === productID.toString()
@@ -200,6 +201,9 @@ const placeOrder = async(req, res) => {
                 quantity,
                 price,
                 discount,
+                profit,
+                gst,
+                platformFee,
                 shippingAddressID
             });
         }
@@ -255,6 +259,22 @@ const placeOrder = async(req, res) => {
         console.error("Error placing order:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
+}
+
+const calculateProfit = (sellingPrice, costPrice, discount) => {
+    const gstPercentage = 18;
+    const platformPercentage = 10;
+
+    //calculating gst
+    // Extract GST from selling price (SP is GST inclusive)
+    const gst = sellingPrice * (gstPercentage / (100 + gstPercentage));
+    //calculating platform fee
+    const platformFee = (platformPercentage / 100) * sellingPrice;
+
+    //calculating seller's profit
+    const profit = sellingPrice - costPrice - discount - gst - platformFee;
+
+    return {profit, gst, platformFee};
 }
 
 module.exports = { estimatedDelivery, averageProductRating, countBroughts, placeOrder, orderDetails }

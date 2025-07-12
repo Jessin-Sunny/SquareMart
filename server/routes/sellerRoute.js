@@ -1,5 +1,5 @@
 const express = require('express')
-const { signup, viewProfile, listProduct, checkSeller, deleteProduct, updateProduct, viewProducts } = require('../controllers/sellerController')
+const { signup, viewProfile, listProduct, checkSeller, deleteProduct, updateProduct, viewProducts, orderHistory } = require('../controllers/sellerController')
 const authSeller = require('../middlewares/authSeller')
 const sellerRouter = express.Router()
 //directing to signup
@@ -14,4 +14,6 @@ sellerRouter.delete("/deleteProduct/:id", authSeller, checkSeller, deleteProduct
 sellerRouter.patch('/updateProduct/:id', authSeller, checkSeller, updateProduct);
 //viewProducts
 sellerRouter.get('/viewProducts', authSeller, checkSeller, viewProducts);
+//orderHistory
+sellerRouter.get('/orderHistory', authSeller, checkSeller, orderHistory);
 module.exports = sellerRouter

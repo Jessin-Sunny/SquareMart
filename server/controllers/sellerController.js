@@ -2,10 +2,11 @@ const User = require('../models/user');
 const Seller = require('../models/seller');
 const Address = require('../models/address');
 const bcrypt = require('bcrypt');
-const createToken = require('../utils/generateToken');
 const Product = require('../models/product');
-const Review = require('../models/review');
 const { averageProductRating } = require('./orderController');
+const Order = require('../models/order');
+const Payment = require('../models/payment');
+const Review = require('../models/review');
 
 //sign-up
 const signup = async(req, res, next) => {
@@ -118,7 +119,7 @@ const viewProfile = async(req, res, next) => {
 const listProduct = async (req, res, next) => {
     try {
         //inputting values from request
-        const {title ,specification, description, price, discount, quantity, category, keywords, image, releaseDate} = req.body || {}
+        const {title ,specification, description, price, costPrice, discount, quantity, category, keywords, image, releaseDate} = req.body || {}
         if(!title || !specification || !price  || !category) {
             return res.status(400).json({ error: "All fields are mandatory" })
         }
@@ -130,7 +131,7 @@ const listProduct = async (req, res, next) => {
             status = 'Out-of-Stock';
         }
         //writing to Product Schema
-        const newProduct = new Product({title ,specification, description, price, discount, quantity, category, keywords, image, status, releaseDate:  releaseDate || null, sellerID: req.sellerID});
+        const newProduct = new Product({title ,specification, description, price, costPrice, discount, quantity, category, keywords, image, status, releaseDate:  releaseDate || null, sellerID: req.sellerID});
         const savedProduct = await newProduct.save();
         const productData = savedProduct.toObject();
         return res.status(201).json({message: "Product Added Successfully",productData})
@@ -229,5 +230,68 @@ const viewProducts = async(req, res) => {
     }
 }
 
+//view order history
+const orderHistory = async(req, res, next) => {
+    try {
+        const sellerID = req.sellerID;
+        // Step 1: Fetch all orders and populate needed references
+        const orders = await Order.find()
+        .populate({
+            path: "customerID",
+            populate: {
+            path: "userID", // From Customer → User
+            model: "User",
+            select: "name"
+            }
+        })
+        .populate({
+            path: "paymentID",
+            model: "Payment",
+            select: "status"
+        })
+        .populate({
+            path: "products.productID",
+            select: "title sellerID"
+        })
+        .lean();
 
-module.exports = {signup, checkSeller, viewProfile, listProduct, deleteProduct, updateProduct, viewProducts} 
+        const filteredOrders = orders
+        .map(order => {
+            // Only products from this seller
+            const sellerProducts = order.products
+            .filter(p => p.productID?.sellerID?.toString() === sellerID.toString())
+            .map(p => ({
+                productID: p.productID._id,
+                title: p.productID.title,
+                quantity: p.quantity,
+                price: p.price,
+                gst: p.gst,
+                profit: p.profit,
+                discount: p.discount
+            }));
+
+            if (sellerProducts.length === 0) return null;
+
+            return {
+            orderID: order._id,
+            orderAt: order.orderAt,
+            customerName: order.customerID?.userID?.name || "Unknown",
+            status: order.status,
+            paymentStatus: order.paymentID?.status || "Unknown",
+            action: "View Details",
+            products: sellerProducts
+            };
+        })
+        .filter(Boolean); // remove nulls (i.e. orders that don’t include this seller’s products)
+
+        return res.status(200).json({
+        message: "Order information fetched successfully",
+        orders: filteredOrders
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = {signup, checkSeller, viewProfile, listProduct, deleteProduct, updateProduct, viewProducts, orderHistory} 
