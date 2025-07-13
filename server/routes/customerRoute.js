@@ -1,5 +1,5 @@
 const express = require('express')
-const { signup, viewProfile, checkCustomer, productPage } = require('../controllers/customerController')
+const { signup, viewProfile, checkCustomer, productPage, customerOrders } = require('../controllers/customerController')
 const authCustomer = require('../middlewares/authCustomer')
 const { addToCart, viewCart, removeCartProduct, incQuantity, decQuantity } = require('../controllers/cartController')
 const { placeOrder } = require('../controllers/orderController')
@@ -30,4 +30,6 @@ customerRouter.post('/addReview/:id', authCustomer, checkCustomer, addReview)
 customerRouter.patch('/editReview/:id', authCustomer, checkCustomer, editReview)
 //removing a review for ordered product
 customerRouter.delete('/removeReview/:id', authCustomer, checkCustomer, removeReview)
+//all orders details
+customerRouter.get('/customerOrders', authCustomer, checkCustomer, customerOrders);
 module.exports = customerRouter

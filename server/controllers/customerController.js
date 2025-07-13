@@ -5,6 +5,7 @@ const Product = require('../models/product');
 const bcrypt = require('bcrypt');
 const Review = require('../models/review');
 const { averageProductRating, countBroughts, estimatedDelivery } = require('./orderController');
+const Order = require('../models/order');
 
 //sign-up
 const signup = async(req, res, next) => {
@@ -149,4 +150,42 @@ const productPage = async(req, res) => {
     }
 }
 
-module.exports = {signup, checkCustomer, viewProfile, productPage} 
+//details of orders of customer
+const customerOrders = async(req, res, next) => {
+    try {
+         const customerID = req.customerID;
+
+        //fetch order details with customerID
+        const orders = await Order.find({customerID})
+            .sort({ orderAt: -1})    //latest orders first
+            .populate({              //fetching delivery address details
+                path: "deliveryAddressID",
+                model: "Address",
+            })                       
+            .populate({              //fetching shipping address details
+                path: "products.shippingAddressID",
+                model: "Address",
+            })
+            .populate({              //fetching product details - title, image
+                path: "products.productID",
+                model: "Product",
+                select: "title image sellerID",
+                populate: {          // fetching seller name
+                    path: "sellerID",
+                    model: "Seller",
+                    select: "userID",
+                    populate: {
+                        path: "userID",
+                        model: "User",
+                        select: "name"
+                    }
+                }
+            });
+            return res.status(200).json({ message: "Order's Information fetched successfully", orders})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports = {signup, checkCustomer, viewProfile, productPage, customerOrders} 
