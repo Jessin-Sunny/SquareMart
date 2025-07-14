@@ -3,8 +3,11 @@ const app =  express();
 const router = require('./routes/index');
 const connectDB = require('./config/db')
 const cookieParser = require('cookie-parser');
+const cors = require('cors');  //browser
 
 app.use(cookieParser());
+app.use(cors());
+
 
 connectDB()
 .then(()=>console.log("DB connected..."))

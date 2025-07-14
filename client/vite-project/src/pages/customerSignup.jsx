@@ -4,6 +4,8 @@ import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaPhone, FaShoppingCart, FaUser,
 } 
 from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { toast } from 'react-toastify';
 
 const CustomerSignup = () => {
   const [step, setStep] = useState(1); // two page sigup
@@ -28,6 +30,65 @@ const CustomerSignup = () => {
   "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Rajasthan",
   "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const handleSignup = async(e) => {
+  //console.log(API_BASE_URL);
+  e.preventDefault();
+  //check if all fields are given on previous page
+  if(!name || !email || !phoneno || !password || !confirm) {
+    toast.error("Please fill all the required fields");
+    return;
+  }
+
+  //validate email
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!isValidEmail) {
+    toast.error("Please enter a valid email address.");
+    return;
+  }
+
+  //check if password and confirm are not same
+  if( password !== confirm) {
+    toast.error("Passwords and Confirm Password do not match");
+    return;
+  }
+
+  //length of password minimum 6
+  if (password.length <= 5) {
+    toast.error("Password must be at least 6 characters long.");
+    return;
+  }
+
+  //check valid phone no
+  const isValidPhone = /^[6-9]\d{9}$/.test(phoneno);
+  if (!isValidPhone) {
+    toast.error("Please enter a valid Indian phone number.");
+    return;
+  }
+
+  // Validate pincode (6 digits, not starting with 0)
+  const isValidPincode = /^[1-9][0-9]{5}$/.test(pincode);
+  if (!isValidPincode) {
+    toast.error("Please enter a valid 6-digit Indian pincode.");
+    return;
+  }
+
+  try {
+    const fullPhoneNumber = `+91${phoneno}`;
+    const formData = {
+      name, email, gender, phoneno: fullPhoneNumber, password, profilepic: "",
+      buildingNo, street, city, state, pincode, country
+    };
+    const response = await axios.post(`${API_BASE_URL}/customer/signup`, formData);
+    console.log("Signup successful:", response.data);
+   toast.success("Account Created Successfully");
+    //navigate("/login");
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response?.data?.message || "Signup failed. Please try again.");
+  }
+}
 
   return (
     <div className="flex w-screen h-screen">
@@ -48,7 +109,6 @@ const CustomerSignup = () => {
         <Link
           to="/signup/seller"
           className="text-blue-400 underline hover:text-white text-lg cursor-pointer"
-
         >
           Signup
         </Link>
@@ -63,7 +123,7 @@ const CustomerSignup = () => {
           SIGN UP
         </div>
         <div className="h-1 bg-black w-97 rounded mb-6"></div>
-      <form className="w-full max-w-sm space-y-7">
+      <form className="w-full max-w-sm space-y-7" onSubmit={handleSignup}>
         {step === 1 && (
           <>
           <div className="flex items-center border-2 p-2 text-black">
@@ -89,16 +149,22 @@ const CustomerSignup = () => {
               required
             >
               <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <div className="flex items-center border-2 p-2 text-black">
-            <FaPhone className='mr-5 rotate-90'/>
-            <input className='w-full outline-none' type='text' placeholder='Phone No' required
-            value={phoneno}
-            onChange={(e) => setPhoneno(e.target.value)}
+            <FaPhone className="mr-2 rotate-90" />
+            <span className=" font-semibold text-black-600 mr-2">+91</span>
+            <input
+              className="w-full outline-none"
+              type="text"
+              placeholder="Phone No"
+              required
+              maxLength={10}
+              value={phoneno}
+              onChange={(e) => setPhoneno(e.target.value)}
             />
           </div>
           <div className="flex items-center border-2 p-2 text-black">
@@ -121,6 +187,7 @@ const CustomerSignup = () => {
           
           
           <button 
+          type='button'
           className="w-full !bg-black text-white py-2 font-semibold cursor-pointer" 
           onClick={() => setStep(2)}>
             Next
@@ -135,7 +202,7 @@ const CustomerSignup = () => {
                 <input
                   className="w-full outline-none"
                   type="text"
-                  placeholder="Building No"
+                  placeholder="Building No / House Name"
                   required
                   value={buildingNo}
                   onChange={(e) => setBuildingNo(e.target.value)}
@@ -200,7 +267,6 @@ const CustomerSignup = () => {
                   value={country}
                   required
                   readOnly
-                  onChange={(e) => setCountry(e.target.value)}
                 />
               </div>
               <div className="flex gap-4">
@@ -229,7 +295,11 @@ const CustomerSignup = () => {
             <div className="flex-grow h-0.5 bg-black"></div>
           </div>
           <p className="text-center text-sm">Already to SquareMart?</p>
-          <button className="w-full !bg-black text-white py-2 cursor-pointer">Login</button>
+          <Link to="/" className="w-full">
+          <button className="w-full !bg-black text-white py-2 cursor-pointer">
+            Login
+          </button>
+        </Link>
       </div>
       </div>
     </div>
