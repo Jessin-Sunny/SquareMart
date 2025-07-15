@@ -68,9 +68,16 @@ const Login = () => {
         <p className="italic text-lg text-center">
           "Everything You Want in One Square"
         </p>
-        <p className="text-center text-lg mt-40">Switch to Seller Page?</p>
+        <p className="text-center text-lg mt-21">New Seller ?</p>
         <Link
-          to="/signup/seller"
+          to="/seller/signup"
+          className="text-blue-400 underline hover:text-white text-lg cursor-pointer"
+        >
+          Signup
+        </Link>
+        <p className="text-center text-lg mt-5">New Customer ?</p>
+        <Link
+          to="/customer/signup"
           className="text-blue-400 underline hover:text-white text-lg cursor-pointer"
         >
           Signup
@@ -113,19 +120,6 @@ const Login = () => {
             </button>
 
       </form>
-      <div className="flex flex-col gap-y-2 mt-4 w-full max-w-sm">
-          <div className="flex items-center gap-4 w-full">
-            <div className="flex-grow h-0.5 bg-black"></div>
-            <span className="text-sm text-black">or</span>
-            <div className="flex-grow h-0.5 bg-black"></div>
-          </div>
-          <p className="text-center text-sm">New to SquareMart?</p>
-          <Link to="/customer/signup" className="w-full">
-            <button className="w-full !bg-black text-white py-2 cursor-pointer">
-                Sign Up
-            </button>
-           </Link>
-      </div>
       </div>
     </div>
   );

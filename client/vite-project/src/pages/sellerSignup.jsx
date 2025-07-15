@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaPhone, FaShoppingCart, FaUser, FaVenusMars, 
-  FaHome, FaGlobe, FaMapMarkedAlt, FaMapPin, FaCity
+  FaHome, FaGlobe, FaMapMarkedAlt, FaMapPin, FaCity, FaIdCard
 } 
 from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -8,7 +8,7 @@ import axios from "axios";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 
-const CustomerSignup = () => {
+const SellerSigup = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // two page sigup
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +17,7 @@ const CustomerSignup = () => {
   const [phoneno, setPhoneno] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [gender, setGender] = useState("");
+  const [GSTIN, setGSTIN] = useState("");
   const [buildingNo, setBuildingNo] = useState('');
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
@@ -38,7 +38,7 @@ const handleSignup = async(e) => {
   //console.log(API_BASE_URL);
   e.preventDefault();
   //check if all fields are given on previous page
-  if(!name || !email || !phoneno || !password || !confirm || !gender) {
+  if(!name || !email || !phoneno || !password || !confirm || !GSTIN) {
     toast.error("Please fill all the required fields");
     return;
   }
@@ -47,6 +47,14 @@ const handleSignup = async(e) => {
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!isValidEmail) {
     toast.error("Please enter a valid email address.");
+    return;
+  }
+
+  //validate GSTIN
+  // Basic regex for 15-digit GSTIN format (alphanumeric)
+  const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(GSTIN)
+  if(!gstinRegex) {
+    toast.error("Please enter a valid GSTIN.");
     return;
   }
 
@@ -76,13 +84,15 @@ const handleSignup = async(e) => {
     return;
   }
 
+  //currently supporting only one address
+
   try {
     const fullPhoneNumber = `+91${phoneno}`;
     const formData = {
-      name, email, gender, phoneno: fullPhoneNumber, password, profilepic: "",
+      name, email, GSTIN, phoneno: fullPhoneNumber, password, profilepic: "",
       buildingNo, street, city, state, pincode, country
     };
-    const response = await axios.post(`${API_BASE_URL}/customer/signup`, formData);
+    const response = await axios.post(`${API_BASE_URL}/seller/signup`, formData);
     console.log("Signup successful:", response.data);
     toast.success("Account Created Successfully");
     navigate("/");
@@ -107,9 +117,9 @@ const handleSignup = async(e) => {
         <p className="italic text-lg text-center">
           "Everything You Want in One Square"
         </p>
-        <p className="text-center text-lg mt-40">New Seller ?</p>
+        <p className="text-center text-lg mt-40">New Customer ?</p>
         <Link
-          to="/seller/signup"
+          to="/customer/signup"
           className="text-blue-400 underline hover:text-white text-lg cursor-pointer"
         >
           Signup
@@ -122,7 +132,7 @@ const handleSignup = async(e) => {
           <span className="text-5x1 rotate-330 mr-2">
             <FaShoppingCart />
           </span>
-          CUSTOMER SIGN UP
+          SELLER SIGN UP
         </div>
         <div className="h-1 bg-black w-97 rounded mb-6"></div>
       <form className="w-full max-w-sm space-y-7" onSubmit={handleSignup}>
@@ -130,7 +140,7 @@ const handleSignup = async(e) => {
           <>
           <div className="flex items-center border-2 p-2 text-black">
             <FaUser className='mr-5'/>
-            <input className='w-full outline-none' type='text' placeholder='Full Name' required
+            <input className='w-full outline-none' type='text' placeholder='Name' required
             value={name}
             onChange={(e) => setName(e.target.value)}
             />
@@ -143,18 +153,11 @@ const handleSignup = async(e) => {
             />
           </div>
           <div className="flex items-center border-2 p-2 text-black">
-            <FaVenusMars className="mr-5 text-lg" />
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="w-full outline-none bg-white"
-              required
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
+            <FaIdCard className='mr-5'/>
+            <input className='w-full outline-none' type='text' placeholder='GSTIN' required
+            value={GSTIN}
+            onChange={(e) => setGSTIN(e.target.value)}
+            />
           </div>
           <div className="flex items-center border-2 p-2 text-black">
             <FaPhone className="mr-2 rotate-90" />
@@ -308,4 +311,4 @@ const handleSignup = async(e) => {
   );
 };
 
-export default CustomerSignup;
+export default SellerSigup;
