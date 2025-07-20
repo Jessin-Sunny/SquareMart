@@ -4,8 +4,10 @@ import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaShoppingCart,
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,8 +37,10 @@ const Login = () => {
       const userObject  = response?.data?.userObject;
       const role  = userObject?.role;
       console.log("Login successful as", role);
+      navigate('/customer/dashboard')
 
       toast.success("Login successful!");
+      /*
       if (role === 'Customer') {
         toast.success("Customer");
       }
@@ -46,7 +50,7 @@ const Login = () => {
       else if (role === 'Admin') {
         toast.success("Admin");
       }
-
+      */
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.error || error.response?.data?.message  || "Login failed. Please try again.");

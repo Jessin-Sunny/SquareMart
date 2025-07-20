@@ -1,5 +1,5 @@
 const express = require('express')
-const { login, logout, checkUser } = require('../controllers/userController')
+const { login, logout, checkUser, topDeals } = require('../controllers/userController')
 const authUser = require('../middlewares/authUser')
 const authAdmin = require('../middlewares/authAdmin')
 const authSeller = require('../middlewares/authSeller')
@@ -18,5 +18,7 @@ userRouter.get('/check-user/admin', authAdmin, checkUser)
 userRouter.get('/check-user/seller', authSeller, checkUser)
 //checking if authorized customer
 userRouter.get('/check-user/customer', authCustomer, checkUser)
+//fetch top 5 deals
+userRouter.get('/topDeals', topDeals)
 
 module.exports = userRouter

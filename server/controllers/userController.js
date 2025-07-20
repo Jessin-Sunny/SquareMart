@@ -2,6 +2,7 @@ const User = require("../models/user")
 const bcrypt = require("bcrypt")
 const createToken = require("../utils/generateToken")
 const Review = require("../models/review")
+const Product = require("../models/product")
 
 //login
 const login = async(req, res, next) => {
@@ -77,6 +78,22 @@ const checkUser = async(req, res, next) => {
     }
 }
 
+//top 5 deals
+const topDeals = async(req, res, next) => {
+    try {
+        const topItems = await Product.find({status:'In-Stock'}).sort({discount: -1}).limit(5);
+        const result = topItems.map(item => ({
+            title: item.title,
+            price: item.price,
+            costPrice: item.costPrice,
+            discount: item.discount,
+            image: item.image
+        }));
+        console.log(topItems)
+        res.json({message: "Top Deals Fetched Successfully", result})
+    } catch (error) {
+        res.status(error.status || 500).json({error: error.message || "Internal Server Error"})
+    }
+}
 
-
-module.exports = { login, logout, checkUser}
+module.exports = { login, logout, checkUser, topDeals}

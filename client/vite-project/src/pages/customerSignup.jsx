@@ -297,7 +297,7 @@ const handleSignup = async(e) => {
             <div className="flex-grow h-0.5 bg-black"></div>
           </div>
           <p className="text-center text-sm">Already to SquareMart?</p>
-          <Link to="/" className="w-full">
+          <Link to="/login" className="w-full">
           <button className="w-full !bg-black text-white py-2 cursor-pointer">
             Login
           </button>
