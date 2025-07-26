@@ -83,6 +83,7 @@ const topDeals = async(req, res, next) => {
     try {
         const topItems = await Product.find({status:'In-Stock'}).sort({discount: -1}).limit(5);
         const result = topItems.map(item => ({
+            _id: item._id,
             title: item.title,
             price: item.price,
             costPrice: item.costPrice,

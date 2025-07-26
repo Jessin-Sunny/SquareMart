@@ -116,7 +116,13 @@ const productPage = async(req, res) => {
     //order - estimated delivery + no. of broughts [delivered]
     try {
         const productID = req.params.id
-        const productData = await Product.findById(productID);
+        const productData = await Product.findById(productID)
+        .populate({
+            path: 'sellerID',
+            populate: {
+            path: 'userID',
+            select: 'name'}
+        })
         if(!productData) {
             return res.status(404).json({ message: "Product not found"})
         }

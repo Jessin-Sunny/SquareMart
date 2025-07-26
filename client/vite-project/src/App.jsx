@@ -6,6 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import SellerSigup from "./pages/sellerSignup";
 import Dashboard from "./pages/dashboard";
 import HomePage from "./pages/home";
+import ProductDetails from "./pages/productDetails";
+
 
 function App() {
   return (
@@ -17,9 +19,10 @@ function App() {
         <Route path="/seller/signup" element={<SellerSigup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<HomePage/>}/>
+        <Route path="/product/:id" element={<ProductDetails/>}/>
       </Routes>
     </Router>
-      <ToastContainer position="top-center" autoClose={3000} />
+      <ToastContainer position="top-center" autoClose={3000}  />
     </>
   );
 }

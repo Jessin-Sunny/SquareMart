@@ -31,13 +31,15 @@ const Login = () => {
 
     try {
       const formData = { email, password}
-      const response = await axios.post(`${API_BASE_URL}/user/login`, formData, ); //{withCredentials: true, // cookies for auth}
+      const response = await axios.post(`${API_BASE_URL}/user/login`, formData, {
+        withCredentials: true
+      });//{withCredentials: true, // cookies for auth}
       console.log(response.data);
 
       const userObject  = response?.data?.userObject;
       const role  = userObject?.role;
       console.log("Login successful as", role);
-      navigate('/customer/dashboard')
+      navigate('/')
 
       toast.success("Login successful!");
       /*
