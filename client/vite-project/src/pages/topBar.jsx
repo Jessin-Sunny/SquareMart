@@ -12,6 +12,8 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const TopBar = () => {
     const navigate = useNavigate();
     const [showSettings, setShowSettings] = useState(false);
@@ -40,10 +42,10 @@ const TopBar = () => {
   useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await axios.get("/api/customer/viewProfile", {
+      const res = await axios.get(`${API_BASE_URL}/customer/viewProfile`, {
         withCredentials: true, // sends cookies
       });
-      setUser(res.data.result); // store in React state or context
+      setUser(res.data.profile); // store in React state or context
     } catch (err) {
         setUser(null); // not logged in
       }
@@ -56,6 +58,7 @@ const TopBar = () => {
     if (user) {
       // Show user info
       console.log("User Info:", user);
+      navigate("/customer/viewProfile");
       // or show modal / navigate to profile
     } else {
         toast.info(

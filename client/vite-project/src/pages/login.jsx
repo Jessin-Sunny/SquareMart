@@ -41,7 +41,8 @@ const Login = () => {
       console.log("Login successful as", role);
       navigate('/')
 
-      toast.success("Login successful!");
+      //UPDATE HERE I THINK
+      //toast.success("Login successful!");
       /*
       if (role === 'Customer') {
         toast.success("Customer");

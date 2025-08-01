@@ -7,6 +7,7 @@ import SellerSigup from "./pages/sellerSignup";
 import Dashboard from "./pages/dashboard";
 import HomePage from "./pages/home";
 import ProductDetails from "./pages/productDetails";
+import CustomerProfile from "./pages/customerProfile";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/customer/dashboard" element={<Dashboard />} />
         <Route path="/seller/signup" element={<SellerSigup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/customer/viewProfile" element={<CustomerProfile/>}/>
         <Route path="/" element={<HomePage/>}/>
         <Route path="/product/:id" element={<ProductDetails/>}/>
       </Routes>
